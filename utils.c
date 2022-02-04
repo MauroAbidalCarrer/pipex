@@ -6,7 +6,7 @@
 /*   By: maabidal <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/02 16:19:24 by maabidal          #+#    #+#             */
-/*   Updated: 2022/02/03 21:07:11 by maabidal         ###   ########.fr       */
+/*   Updated: 2022/02/04 21:03:51 by maabidal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,13 +22,13 @@ void	exit_with_error(t_cmd *cmd)
 			write(2, *cmd->av, index_of(0, *cmd->av, 0));
 			write(2, "\n", 1);
 		}
-		while (--cmd->to_free >= 0)
-			free(cmd->av[cmd->to_free]);
+		while (--cmd->ac >= 0)
+			free(cmd->av[cmd->ac]);
 		free(cmd->av);
 		if (cmd->path)
 			free(cmd->path);
 		if (cmd->not_found)
-			exit(1);
+			exit(127);
 	}
 	if (!cmd || !cmd->dont_print_msg)
 		perror("zsh");
@@ -96,31 +96,5 @@ int	sub_cat(char *str, int sub_len, char *str2, char **dst)//demaner a jeremmy p
 		dst[0][sub_len + str2_len] = str2[str2_len];
 	while (--sub_len >= 0)
 		dst[0][sub_len] = str[sub_len];
-	return (0);
-}
-
-//file names cannot contain '/'
-//so it is safe to assume that if the cmd contains '/', it is an absolute path
-//+ 1, car si '/' est a i=0 ca fait += 0
-int	special_case(t_cmd *cmd)
-{
-	if (!cmd->to_free)
-	{
-		write(2, "zsh: permission denied: \n", 25);
-		cmd->dont_print_msg = 1;
-		exit_with_error(cmd);
-	}
-	if (index_of('/', *cmd->av, 0) != -1)
-	{
-		if (access(*cmd->av, X_OK) == 0)
-		{
-		cmd->path = *cmd->av;
-		while (index_of('/', *cmd->av, 0) != -1)
-			*cmd->av += index_of('/', *cmd->av, 0) + 1;
-		return (1);
-		}
-		cmd->not_found = 1;
-		exit_with_error(cmd);
-	}
 	return (0);
 }
