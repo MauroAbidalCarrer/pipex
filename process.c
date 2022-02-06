@@ -6,81 +6,100 @@
 /*   By: maabidal <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/02 13:50:11 by maabidal          #+#    #+#             */
-/*   Updated: 2022/02/04 21:26:38 by maabidal         ###   ########.fr       */
+/*   Updated: 2022/02/06 18:51:55 by maabidal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "header.h"
 
-void	exit_with_error(t_cmd *cmd)
+//have to malloc error_msgs to print it all at once
+void	exit_with_error(t_cmd *cmd, char *c_msg, char *app_msg, int exit_status)
 {
+	char	buff[2048];
+
+	if (!c_msg)
+	{
+		str_cat(BEF_ERR, buff);
+		str_cat(strerror(errno), buff);
+	}
+	else
+		str_cat(c_msg, buff);
+	if (app_msg)
+	{
+		str_cat(": ", buff);
+		str_cat(app_msg, buff);
+	}
+	str_cat("\n", buff);
+	write(2, buff, index_of(0, buff, 0));
 	if (cmd)
 	{
-		if (cmd->not_found)
-		{
-			write(2, "zsh: command not found: ", 24);
-			write(2, *cmd->av, index_of(0, *cmd->av, 0));
-			write(2, "\n", 1);
-		}
 		while (--cmd->ac >= 0)
 			free(cmd->av[cmd->ac]);
 		free(cmd->av);
 		if (cmd->path)
 			free(cmd->path);
-		if (cmd->not_found)
-			exit(127);
 	}
-	if (!cmd || !cmd->dont_print_msg)
-		perror("zsh");
-	exit(1);
+	exit(exit_status);
 }
 
-int	open_file(char *pathname, int flags, int c_mode, t_cmd *cmd)
+int	open_file(char *pathname, int flags, t_cmd *cmd)
 {
 	int	fd;
 
-	fd = open(pathname, flags, c_mode);
+	fd = open(pathname, flags, CREAT_M);
 	if (fd == -1)
-	{
-		exit_status = F_PERM_DEN;
-		if (errno == 2)
-			exit_status = F_NOT_FOUND;
-		exit_with_error(cmd, file, exit_status);
-	}
+		exit_with_error(cmd, NULL, pathname, 1);
 	return (fd);
 }
 
-void	update_fds(int fd, int std_fd, int std_p, int p_use, int p_close)
+void	update_fds(int fd, int std_fd, int std_p, int p_use, int p_close, t_cmd *cmd)
 {
-	if (fd != std_stream)
+	if (fd != std_fd)
 	{
 		if (dup2(fd, std_fd) == -1)
-			exit_with_error(NULL, NULL, 1);
+			exit_with_error(cmd, null, null, 1);
 	}
 	if (close(p_close) == -1 || dup2(p_use, std_p) == -1)
-		exit_with_error(NULL);
+		exit_with_error(cmd, null, null, 1);
 }
 
-void	fisrt_cmd(char *cmd_s, char *file, char **env, int p_fds[2])
+void	open_file_update_fds(int flags, int std_fd, int std_p, int p_use, int p_close, t_cmd *cmd)
+{
+	int	fd;
+
+	fd = open(pathname, flags, CREAT_M);
+	if (fd == -1)
+		exit_with_error(cmd, NULL, pathname, 1);
+	if (fd != std_fd)
+	{
+		if (dup2(fd, std_fd) == -1)
+			exit_with_error(cmd, null, null, 1);
+	}
+	if (close(p_close) == -1 || dup2(p_use, std_p) == -1)
+		exit_with_error(cmd, null, null, 1);
+}
+
+void	exe_first_cmd(char *cmd_s, char *file, char **env, int p_fds[2])
 {
 	t_cmd	cmd;
 	int	fd;
 
-	fd = open_file(file, O_RDONLY, 0, NULL);
-	update_fds(fd, IN, OUT, p_fds[1], p_fds[0]);
-	setup_cmd(&cmd, cmd_s);
+	fd = open_file(file, O_RDONLY, NULL);
+	update_fds(fd, IN, OUT, p_fds[1], p_fds[0], &cmd);
+	setup_cmd(&cmd, cmd_s, env);
 	execve(cmd.path, cmd.av, env);
-	exit_with_error(&cmd, NULL, 1);
+	exit_with_error(&cmd, NULL, *cmd.av, 1);
 }
 
-void	last_cmd(char *cmd_s, char *file, char **env, int p_fds[2])
+void	exe_last_cmd(char *cmd_s, char *file, char **env, int p_fds[2], int flags)
 {
 	t_cmd	cmd;
 	int	fd;
 
-	setup_cmd(&cmd, cmd_s);
-	fd = open_file(file, C_FLAGS, C_MODE, cmd)
-	update_fds(fd, OUT, IN, p_fds[0], p_fds[1]);
+
+	setup_cmd(&cmd, cmd_s, env);
+	fd = open_file(file, flags, &cmd);
+	update_fds(fd, OUT, IN, p_fds[0], p_fds[1], &cmd);
 	execve(cmd.path, cmd.av, env);
-	exit_with_error(&cmd, NULL, 1);
+	exit_with_error(&cmd, NULL, NULL, 1);
 }

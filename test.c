@@ -1,10 +1,13 @@
 #include "header.h"
+#include <errno.h>
+#include <string.h>
 
 int	sub_cat(char *str, int sub_len, char *str2, char **dst);//demaner a jeremmy parraport au priorites
 void	setup_cmd_av(char *cmd_s, t_cmd *cmd, char **env);
 void	exe_cmd1(char *cmd_s, char *file, char **env, int p_fds[2]);
 void	exe_cmd2(char *cmd_s, char *file, char **env, int p_fds[2]);
 
+/*
 void	print_cmd(t_cmd cmd)
 {
 	printf("----------------\nprinting cmd\nto_free = %d\n", cmd.to_free);
@@ -12,6 +15,7 @@ void	print_cmd(t_cmd cmd)
 		printf("av[%d] = \"%s\"\n", i, cmd.av[i]);
 	printf("cmd.path = \"%s\"\n-------------------\n", cmd.path);
 }
+*/
 //take care of ./: OUI!!!!!!!!!!!!!!!!!!!!!!!!
 //does X_OK checks if the file exists?: OUI!!!
 int	main(int ac, char **av, char **env)
@@ -71,4 +75,7 @@ int	main(int ac, char **av, char **env)
 		exe_cmd1(av[1], av[2], env, p_fds);
 	exe_cmd2(av[3], av[4], env, p_fds);
 */
+printf("open(%s) = %d\n", av[1], open(av[1], O_RDONLY));
+printf("errno = %d\n", errno);
+printf("strerror = \"%s\"\n", strerror(errno));
 }

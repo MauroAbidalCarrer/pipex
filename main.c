@@ -6,7 +6,7 @@
 /*   By: maabidal <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/04 21:25:15 by maabidal          #+#    #+#             */
-/*   Updated: 2022/02/04 21:25:30 by maabidal         ###   ########.fr       */
+/*   Updated: 2022/02/05 17:16:54 by maabidal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,12 +23,12 @@ int	main(int ac, char **av, char **env)
 		return (1);
 	}
 	if (pipe(p_fds) == -1)
-		exit_with_error(NULL, NULL, 1);
+		exit_with_error(NULL, NULL, NULL, 1);
 	child_pid = fork();
 	if (child_pid == -1)
-		exit_with_error(NULL, NULL, 1);
+		exit_with_error(NULL, NULL, NULL, 1);
 	if (child_pid == 0)
-		exe_cmd2(av[3], av[4], env, p_fds);
-	exe_cmd1(av[1], av[2], env, p_fds);
+		exe_first_cmd(av[2], av[1], env, p_fds);
+	exe_last_cmd(av[3], av[4], env, p_fds);
 }
 

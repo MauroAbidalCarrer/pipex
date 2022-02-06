@@ -6,34 +6,11 @@
 /*   By: maabidal <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/02 16:19:24 by maabidal          #+#    #+#             */
-/*   Updated: 2022/02/04 21:03:51 by maabidal         ###   ########.fr       */
+/*   Updated: 2022/02/05 18:14:55 by maabidal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "header.h"
-
-void	exit_with_error(t_cmd *cmd)
-{
-	if (cmd)
-	{
-		if (cmd->not_found)
-		{
-			write(2, "zsh: command not found: ", 24);
-			write(2, *cmd->av, index_of(0, *cmd->av, 0));
-			write(2, "\n", 1);
-		}
-		while (--cmd->ac >= 0)
-			free(cmd->av[cmd->ac]);
-		free(cmd->av);
-		if (cmd->path)
-			free(cmd->path);
-		if (cmd->not_found)
-			exit(127);
-	}
-	if (!cmd || !cmd->dont_print_msg)
-		perror("zsh");
-	exit(1);
-}
 
 int	try_get_env_var_vals(char *key, char **dst, char **env)
 {
@@ -97,4 +74,19 @@ int	sub_cat(char *str, int sub_len, char *str2, char **dst)//demaner a jeremmy p
 	while (--sub_len >= 0)
 		dst[0][sub_len] = str[sub_len];
 	return (0);
+}
+
+void	str_cat(char *src, char *dst)
+{
+	static int i;
+	int	j;
+
+	j = 0;
+	while (src[j] && i < 2047)
+	{
+		dst[i] = src[j];
+		j++;
+		i++;
+	}
+	dst[i] = 0;
 }
