@@ -12,14 +12,12 @@
 
 #include "header.h"
 
-
 int	has_access(char *cmd_path, t_cmd *cmd, int free_path_on_fail)
 {
 	if (access(cmd_path, F_OK) == 0)
 	{
 		if (access(cmd_path, X_OK) == 0)
 			return (1);
-		//cmd exists but cannot be executed
 		if (free_path_on_fail)
 			free(cmd_path);
 		exit_with_error(cmd, NULL, *cmd->av, 126);
@@ -57,7 +55,7 @@ int	is_special_case(t_cmd *cmd, char *cmd_s)
 
 void	get_cmd_path(t_cmd *cmd, char **env)
 {
-	char	*path;//not mallocked
+	char	*path;
 	char	*end_path;
 
 	if (!try_get_env_var_vals("PATH", &path, env))
@@ -121,5 +119,4 @@ void	setup_cmd(t_cmd *cmd, char *cmd_s, char **env)
 	setup_cmd_av(cmd_s, cmd);
 	if (!is_special_case(cmd, cmd_s))
 		get_cmd_path(cmd, env);
-//printf("cmd_s \"%s\", *cmd->av = \"%s\", cmd->path = \"%s\"\n", cmd_s, *cmd->av, cmd->path);
 }

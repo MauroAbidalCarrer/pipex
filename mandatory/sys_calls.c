@@ -1,34 +1,51 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.c                                             :+:      :+:    :+:   */
+/*   sys_calls.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: maabidal <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/02/04 21:25:15 by maabidal          #+#    #+#             */
-/*   Updated: 2022/02/05 17:16:54 by maabidal         ###   ########.fr       */
+/*   Created: 2022/02/07 15:45:28 by maabidal          #+#    #+#             */
+/*   Updated: 2022/02/07 20:38:45 by maabidal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "header.h"
 
-int	main(int ac, char **av, char **env)
+void	ft_close(int fd)
 {
-	int	p_fds[2];
+	if (close(fd) == -1)
+		exit_with_error(NULL, NULL, NULL, 1);
+}
+
+int	ft_open(char *pathname, int open_fs, t_cmd *cmd)
+{
+	int	fd;
+
+	fd = open(pathname, open_fs, CREAT_M);
+	if (fd == -1)
+		exit_with_error(cmd, NULL, pathname, 1);
+	return (fd);
+}
+
+void	ft_dup2(int old_fd, int new_fd, t_cmd *cmd)
+{
+	if (dup2(old_fd, new_fd) == -1)
+		exit_with_error(cmd, NULL, NULL, 1);
+}
+
+int	ft_fork(void)
+{
 	int	child_pid;
 
-	if (ac != 5)
-	{
-		write(2, "pipex: Error: nb of arguments isn't 4\n", 38);
-		return (1);
-	}
-	if (pipe(p_fds) == -1)
-		exit_with_error(NULL, NULL, NULL, 1);
 	child_pid = fork();
 	if (child_pid == -1)
 		exit_with_error(NULL, NULL, NULL, 1);
-	if (child_pid == 0)
-		exe_first_cmd(av[2], av[1], env, p_fds);
-	exe_last_cmd(av[3], av[4], env, p_fds);
+	return (child_pid);
 }
 
+void	ft_pipe(int *p_fds)
+{
+	if (pipe(p_fds) == -1)
+		exit_with_error(NULL, NULL, NULL, 1);
+}

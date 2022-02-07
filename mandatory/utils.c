@@ -46,21 +46,21 @@ int	index_of(char c, char *str, int or_get_len)
 			return (i);
 	}
 	if (or_get_len)
-		return index_of(0, str, 0);
+		return (index_of(0, str, 0));
 	if (c == 0)
 		return (i);
 	return (-1);
 }
 
 //returns 1 if malloc failed
-int	sub_cat(char *str, int sub_len, char *str2, char **dst)//demaner a jeremmy parraport au priorites
+int	sub_cat(char *str, int sub_len, char *str2, char **dst)
 {
 	int	str2_len;
 
 	if (sub_len == 0)
 	{
 		*dst = NULL;
-		return(0);
+		return (0);
 	}
 	str2_len = 0;
 	if (str2)
@@ -78,8 +78,8 @@ int	sub_cat(char *str, int sub_len, char *str2, char **dst)//demaner a jeremmy p
 
 void	cat_error_msg(char *src, char *dst)
 {
-	static int i;
-	int	j;
+	static int	i;
+	int			j;
 
 	j = 0;
 	while (src[j] && i < 2047)
@@ -102,4 +102,3 @@ int	is_str(char *str1, char *str2)
 	}
 	return (0);
 }
-
