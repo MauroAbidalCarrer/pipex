@@ -6,7 +6,7 @@
 /*   By: maabidal <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/02 13:50:20 by maabidal          #+#    #+#             */
-/*   Updated: 2022/02/06 18:41:50 by maabidal         ###   ########.fr       */
+/*   Updated: 2022/02/07 14:45:47 by maabidal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,11 +48,10 @@
 # ifndef PERM_DEN
 #  define PERM_DEN "zsh: permission denied: "
 # endif
-/*
-# ifndef F_NOT_FOUND
-#  define F_NOT_FOUND "zsh: no such file or directory: "
+# ifndef C_PIPE_FD
+#  define C_PIPE_FD 2
 # endif
-*/
+
 typedef struct cmd
 {
 	char	*path;
@@ -64,8 +63,9 @@ int	index_of(char c, char *str, int or_get_len);
 int	try_get_env_var_vals(char *key, char **dst, char **env);
 int	sub_cat(char *str, int sub_len, char *str2, char **dst);
 void	setup_cmd(t_cmd *cmd, char *cmd_s, char **env);
-void	str_cat(char *src, char *dst);
+void	cat_error_msg(char *src, char *dst);
 
 void	exe_first_cmd(char *cmd_s, char *file, char **env, int p_fds[2]);
 void	exe_last_cmd(char *cmd_s, char *file, char **env, int p_fds[2], int O_MODE);
+void	exe_pipe_cmd(char *cmd_s, char **env, int p_read, int p_write);
 #endif

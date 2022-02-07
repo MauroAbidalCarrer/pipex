@@ -6,7 +6,7 @@
 /*   By: maabidal <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/02 16:19:24 by maabidal          #+#    #+#             */
-/*   Updated: 2022/02/05 18:14:55 by maabidal         ###   ########.fr       */
+/*   Updated: 2022/02/06 20:28:47 by maabidal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,7 +76,7 @@ int	sub_cat(char *str, int sub_len, char *str2, char **dst)//demaner a jeremmy p
 	return (0);
 }
 
-void	str_cat(char *src, char *dst)
+void	cat_error_msg(char *src, char *dst)
 {
 	static int i;
 	int	j;
