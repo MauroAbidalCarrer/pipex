@@ -6,7 +6,7 @@
 /*   By: maabidal <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/02 13:50:11 by maabidal          #+#    #+#             */
-/*   Updated: 2022/02/07 15:07:36 by maabidal         ###   ########.fr       */
+/*   Updated: 2022/02/07 19:05:31 by maabidal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,73 +42,48 @@ void	exit_with_error(t_cmd *cmd, char *c_msg, char *app_msg, int exit_status)
 	exit(exit_status);
 }
 
-void	open_file_update_fds(int open_f, char *pathname, int fd_flags, int *p_fds, t_cmd *cmd)
+void	open_file_update_fds(int open_f, char *pathname, int file_stream, int p_fd, t_cmd *cmd)
 {
 	int	fd;
-	int	pipe_index;//index of pipe to replace pipe_stream
+	int	pipe_stream;
 
-	fd = open(pathname, open_f, CREAT_M);
-	if (fd == -1)
-		exit_with_error(cmd, NULL, pathname, 1);
-	pipe_index = !(fd_flags & 1);
-	printf("pathname = \"%s\", fd_flags = %d, pipe_index = %d, p_fds[pipe_index] = %d ", pathname, fd_flags, pipe_index, p_fds[pipe_index]);
-	printf("p_fds[1 - pipe_index] = %d\n", p_fds[1 - pipe_index]);
-	if (fd_flags & C_PIPE_FD)
-	{
-		printf("closing p_fds[1 - pipe_index] = %d\n", p_fds[pipe_index]);
-		if (close(p_fds[1 - pipe_index]) == -1)
-			exit_with_error(cmd, NULL, NULL, 1);
-//		printf("called\n");
-		printf("closed p_fds[1 - pipe_index] = %d\n", p_fds[pipe_index]);
-	}
-	else
-		printf("not called\n");
-	//printf("opend file = \"%s\", dupe2(%d, %d) done\n", pathname, fd, file_stream);
-	//printf("dupe2(%d, %d) done\n", p_fds[pipe_index], pipe_index);
-	if (dup2(fd, fd_flags & 1) == -1)
-		exit_with_error(cmd, NULL, NULL, 1);
-	if (dup2(p_fds[pipe_index], pipe_index) == -1)
-//	{
-//		printf("stopped\n");
-		exit_with_error(cmd, NULL, NULL, 1);
-//	}
+//printf("\n\n pathname = %s\n", pathname);
+	pipe_stream = 1 - file_stream;
+//printf("pipe stream = %d\n", pipe_stream);
+	ft_dup2(p_fd, pipe_stream, cmd);
+	fd = ft_open(pathname, open_f, cmd);
+	ft_dup2(fd, file_stream, cmd);
 }
 
-void	exe_first_cmd(char *cmd_s, char *pathname, char **env, int p_fds[2])
+void	exe_first_proc(char *cmd_s, char *pathname, char **env, int p_write)
 {
 	t_cmd	cmd;
 	int	fd;
 
-	open_file_update_fds(O_RDONLY, pathname, IN, p_fds, NULL);
+	open_file_update_fds(O_RDONLY, pathname, IN, p_write, NULL);
 	setup_cmd(&cmd, cmd_s, env);
 	execve(cmd.path, cmd.av, env);
 	exit_with_error(&cmd, NULL, *cmd.av, 1);
 }
 
-void	exe_last_cmd(char *cmd_s, char *pathname, char **env, int p_fds[2], int hd)
+void	exe_last_proc(char *cmd_s, char *pathname, char **env, int p_read, int open_f)
 {
 	t_cmd	cmd;
 	int	fd;
 
 	setup_cmd(&cmd, cmd_s, env);
-	if (hd)
-		open_file_update_fds(APPEND_F, pathname, OUT, p_fds, &cmd);
-	else
-		open_file_update_fds(CREAT_F, pathname, OUT | C_PIPE_FD, p_fds, &cmd);
-//printf("called3\n");
+	open_file_update_fds(open_f, pathname, OUT, p_read, &cmd);
 	execve(cmd.path, cmd.av, env);
-//printf("called4\n");
 	exit_with_error(&cmd, NULL, *cmd.av, 1);
 }
 
-void	exe_pipe_cmd(char *cmd_s, char **env, int p_read, int p_write)
+void	exe_pipe_proc(char *cmd_s, char **env, int p_read, int p_write)
 {
 	t_cmd cmd;
 
 	setup_cmd(&cmd, cmd_s, env);
-	if(dup2(p_read, IN) == -1 || dup2(p_write, OUT) == -1)
-		exit_with_error(&cmd, NULL, NULL, 1);
-//printf("cmd_s = %s\n", cmd_s);
+	ft_dup2(p_read, IN, &cmd);
+	ft_dup2(p_write, OUT, &cmd);
 	execve(cmd.path, cmd.av, env);
 	exit_with_error(&cmd, NULL, cmd.path, 1);
 }

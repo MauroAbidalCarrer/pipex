@@ -6,25 +6,11 @@
 /*   By: maabidal <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/05 18:47:32 by maabidal          #+#    #+#             */
-/*   Updated: 2022/02/07 15:08:44 by maabidal         ###   ########.fr       */
+/*   Updated: 2022/02/07 19:05:13 by maabidal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "header.h"
-
-char *get_next_line(int fd);
-
-int	is_str(char *str1, char *str2)
-{
-	while (*str1 && *str1 == *str2)
-	{
-		if (!str1[1] && !str2[1])
-			return (1);
-		str1++;
-		str2++;
-	}
-	return (0);
-}
 
 void	here_doc(int fd, char *limit)
 {
@@ -40,100 +26,65 @@ void	here_doc(int fd, char *limit)
 		tmp = line[index_of(0, limit, 0)];
 		if (tmp == '\n')
 			line[index_of(0, limit, 0)] = 0;
-//printf("limit = \"%s\"\n", limit);
-//printf("line = \"%s\"\n", line);
 		if (is_str(line, limit))
 			break ;
 		line[index_of(0, limit, 0)] = tmp;
 		write(fd, line, index_of(0, line, 0));
 	}
+	ft_close(fd);
 }
 
-void	exe_mid_cmds(int nb_cmds, char **av, char **env, int *p_fds1)
+int	exe_mid_cmds(int nb_cmds, char **av, char **env, int c_read_p)
 {
-	int	child_pid;
 	int	p_fds2[2];
 
 	while (nb_cmds--)
 	{
-printf("nb_cmds = %d\n", nb_cmds);
-printf("cmd = \"%s\", closing p_fds[1] = %d\n", *av, p_fds1[1]);
-		if (close(p_fds1[1]) == -1)
-			exit_with_error(NULL, NULL, NULL, 1);
-		if (pipe(p_fds2) == -1)
-			exit_with_error(NULL, NULL, NULL, 1);
-printf("cmd = \"%s\", pipe(p_fds2) p_fds2[0] = %d, p_fds2[1] = %d\n", *av, p_fds2[0], p_fds2[1]);
-		child_pid = fork();
-		if (child_pid == -1)
-			exit_with_error(NULL, NULL, NULL, 1);
-printf("child_pid = %d\n", child_pid);
-		if (child_pid == 0)
-{
-//printf("cmd %d, cmd_s = \"%s\"\n", nb_cmds, *av);
-			if (close(p_fds2[0]) == -1)
-				exit_with_error(NULL, NULL, NULL, 1);
-			exe_pipe_cmd(*av, env, p_fds1[0], p_fds2[1]);
-}
-av++;
-//printf("done\n");
-//printf("cmd = \"%s\", assigning p_fds2[0] = %d to p_fds1[0] = %d\n", *av, p_fds2[0], p_fds1[0]);
-		p_fds1[0] = p_fds2[0];
-//printf("cmd = \"%s\", closing %d\n", *av, p_fds2[1]);
-		if (close(p_fds2[1]) == -1)
-			exit_with_error(NULL, NULL, NULL, 1);
-		//p_fds1 = p_fds2;
-//printf("\n\n");
+		ft_pipe(p_fds2);			//c_read_p, p_fds2
+//printf("cmd = \"%s\", ", *av);
+//printf("piped(p_fds2), c_read_p = %d, p_fds2[0] = %d, p_fds2[1] = %d\n", c_read_p, p_fds2[0], p_fds2[1]);
+		if (ft_fork() == 0)
+		{
+			ft_close(p_fds2[0]);		//c_read_p, p_fds2[1]
+			exe_pipe_proc(*av, env, c_read_p, p_fds2[1]);
+		}
+		ft_close(p_fds2[1]);			//p_fds2[0], p_fds2[1]
+		ft_close(c_read_p);			//p_fds2[0]
+		c_read_p = p_fds2[0];			//c_read_p
+		av++;
 	}
-//printf("done\n");
+//printf("done, c_read_p = %d\n", c_read_p);
+	return (c_read_p);
 }
 
-void	exe_cmds(int ac, char **av, char **env, int hd, int *p_fds)
+void	exe_cmds_hd(int ac, char **av, char **env, int read_pipe)
 {
-	int	child_pid;
 	int	p_fds2[2];
 
-	child_pid = fork();
-	if (hd)
-		if (pipe(p_fds2) == -1)
-			exit_with_error(NULL, NULL, NULL, 1);
-	if (child_pid == -1)
-		exit_with_error(NULL, NULL, NULL, 1);
-	if (child_pid == 0)
+	ft_pipe(p_fds2);				//read_pipe, p_fds2[0], p_fds2[1] 
+//printf("piped(p_fds2), read_pipe = %d, p_fds2[0] = %d, p_fds2[1] = %d\n", read_pipe, p_fds2[0], p_fds2[1]);
+	if (ft_fork() == 0)
 	{
-		if (hd )
-{
-//printf("first cmd_s = \"%s\"\n", *av);
-			exe_pipe_cmd(*av, env, p_fds[0], p_fds2[1]);
+		ft_close(p_fds2[0]);			//p_fds[0], p_fds2[1] 
+		exe_pipe_proc(*av, env, read_pipe, p_fds2[1]);
+	}
+	ft_close(p_fds2[1]);
+	ft_close(read_pipe);			//p_fds2[0]
+//printf("closed(p_fds2[1]), closed(read_pipe), p_fds2[0] = %d\n", p_fds2[0]);
+	read_pipe = exe_mid_cmds(ac - 3, av + 1, env, p_fds2[0]);	//read_pipe
+	exe_last_proc(av[ac - 2], av[ac - 1], env, read_pipe, APPEND_F);
 }
-		else
-		{
-//printf("first cmd_s = \"%s\", file = \"%s\"\n", av[1], av[0]);
-			exe_first_cmd(av[1], av[0], env, p_fds);
-		}
-	}
-	if (hd)
+
+void	exe_cmds_no_hd(int ac, char **av, char **env, int *p_fds)
+{
+	if (ft_fork() == 0)
 	{
-		printf("closing p_fds[0] = %d\n", p_fds[0]);
-		if(close(p_fds[0]) == -1)
-			exit_with_error(NULL, NULL, NULL, 1);
-		if (ac - 6 == 0)
-		{
-			printf("closing p_fds[1] = %d\n", p_fds[1]);
-			if(close(p_fds[1]) == -1)
-				exit_with_error(NULL, NULL, NULL, 1);
-		}
-		else
-			printf("nope\n");
-printf("assigning p_fds[0] = %d,  to p_fds2[0] = %d\n", p_fds[0], p_fds2[0]);
-		p_fds[0] = p_fds2[0];
+		ft_close(p_fds[0]);			//p_fsd[1]
+		exe_first_proc(av[1], av[0], env, p_fds[1]);
 	}
-//printf("p_fds[0] = %d\n", p_fds[0]);
-//printf("nb mid cmds = %d\n", ac - 5 - hd);
-//printf("first mid cmds = %s\n", av[2 - hd]);
-	exe_mid_cmds(ac - 5 - hd, av + 2 - hd, env, p_fds);
-//printf("p_fds[0] = %d\n", p_fds[0]);
-//printf("executing last cmd\n");
-	exe_last_cmd(av[ac - 3 - hd * 2], av[ac - 2 - hd * 2], env, p_fds, hd);
+	ft_close(p_fds[1]);				//p_fds[0]
+	p_fds[0] = exe_mid_cmds(ac - 4, av + 2, env, p_fds[0]);	//p_fds[0]
+	exe_last_proc(av[ac - 2], av[ac - 1], env, p_fds[0], CREAT_F);
 }
 
 int	 main(int ac, char **av, char **env)
@@ -146,11 +97,14 @@ int	 main(int ac, char **av, char **env)
 		write(2, "nb of args incorrect, write at least 4 args\n", 43);
 		return (1);
 	}
-	if (pipe(p_fds) == -1)
-		exit_with_error(NULL, NULL, NULL, 1);
+	pipe(p_fds);
 	hd = is_str("here_doc", av[1]);
 	if (hd)
 		here_doc(p_fds[1], av[2]);
 	av += 1 + hd * 2;
-	exe_cmds(ac, av, env, hd, p_fds);
+	ac -= 1 + hd * 2;
+	if (hd)
+		exe_cmds_hd(ac, av, env, p_fds[0]);
+	else
+		exe_cmds_no_hd(ac, av, env, p_fds);
 }

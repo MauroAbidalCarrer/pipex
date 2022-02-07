@@ -6,7 +6,7 @@
 /*   By: maabidal <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/02 13:50:20 by maabidal          #+#    #+#             */
-/*   Updated: 2022/02/07 14:45:47 by maabidal         ###   ########.fr       */
+/*   Updated: 2022/02/07 17:17:02 by maabidal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,24 +48,31 @@
 # ifndef PERM_DEN
 #  define PERM_DEN "zsh: permission denied: "
 # endif
-# ifndef C_PIPE_FD
-#  define C_PIPE_FD 2
-# endif
-
 typedef struct cmd
 {
 	char	*path;
 	char	**av;
 	int	ac;
 }	t_cmd;
-void	exit_with_error(t_cmd *cmd, char *c_msg, char *app_msg, int exit_status);
+//utils
 int	index_of(char c, char *str, int or_get_len);
 int	try_get_env_var_vals(char *key, char **dst, char **env);
 int	sub_cat(char *str, int sub_len, char *str2, char **dst);
 void	setup_cmd(t_cmd *cmd, char *cmd_s, char **env);
 void	cat_error_msg(char *src, char *dst);
+int	is_str(char *str1, char *str2);
+char	*get_next_line(int fd);
 
-void	exe_first_cmd(char *cmd_s, char *file, char **env, int p_fds[2]);
-void	exe_last_cmd(char *cmd_s, char *file, char **env, int p_fds[2], int O_MODE);
-void	exe_pipe_cmd(char *cmd_s, char **env, int p_read, int p_write);
+//process
+void	exit_with_error(t_cmd *cmd, char *c_msg, char *app_msg, int exit_status);
+void	exe_first_proc(char *cmd_s, char *pathname, char **env, int p_write);
+void	exe_last_proc(char *cmd_s, char *pathname, char **env, int p_read, int open_f);
+void	exe_pipe_proc(char *cmd_s, char **env, int p_read, int p_write);
+
+//sys_calls
+void	ft_close(int fd);
+void	ft_dup2(int old_fd, int new_fd, t_cmd *cmd);
+void	ft_pipe(int *p_fds);
+int	ft_open(char *pathname, int open_fs, t_cmd *cmd);
+int	ft_fork();
 #endif

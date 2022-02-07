@@ -6,7 +6,7 @@
 /*   By: maabidal <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/02 16:19:24 by maabidal          #+#    #+#             */
-/*   Updated: 2022/02/06 20:28:47 by maabidal         ###   ########.fr       */
+/*   Updated: 2022/02/07 15:31:51 by maabidal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,3 +90,16 @@ void	cat_error_msg(char *src, char *dst)
 	}
 	dst[i] = 0;
 }
+
+int	is_str(char *str1, char *str2)
+{
+	while (*str1 && *str1 == *str2)
+	{
+		if (!str1[1] && !str2[1])
+			return (1);
+		str1++;
+		str2++;
+	}
+	return (0);
+}
+
