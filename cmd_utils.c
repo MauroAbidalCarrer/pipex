@@ -6,7 +6,7 @@
 /*   By: maabidal <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/04 14:33:52 by maabidal          #+#    #+#             */
-/*   Updated: 2022/02/05 18:41:17 by maabidal         ###   ########.fr       */
+/*   Updated: 2022/02/07 23:03:01 by maabidal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -111,7 +111,7 @@ void	setup_cmd_av(char *cmd_s, t_cmd *cmd)
 
 void	setup_cmd(t_cmd *cmd, char *cmd_s, char **env)
 {
-	int	i;
+	unsigned int	i;
 
 	i = 0;
 	while (i < sizeof(t_cmd))

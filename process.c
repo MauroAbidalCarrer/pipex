@@ -6,7 +6,7 @@
 /*   By: maabidal <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/02 13:50:11 by maabidal          #+#    #+#             */
-/*   Updated: 2022/02/07 22:45:06 by maabidal         ###   ########.fr       */
+/*   Updated: 2022/02/07 23:03:25 by maabidal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,7 +56,6 @@ void	manage_fds(int *yes, char *pathname, int file_stream, t_cmd *cmd)
 void	exe_first(char *cmd_s, char *pathname, char **env, int p_write)
 {
 	t_cmd	cmd;
-	int		fd;
 	int		p_read_n_open_f[2];
 
 	p_read_n_open_f[1] = O_RDONLY;
@@ -70,7 +69,6 @@ void	exe_first(char *cmd_s, char *pathname, char **env, int p_write)
 void	exe_last(char *cmd_s, char *pathname, char **env, int *p_read_n_open_f)
 {
 	t_cmd	cmd;
-	int		fd;
 
 	setup_cmd(&cmd, cmd_s, env);
 	manage_fds(p_read_n_open_f, pathname, OUT, &cmd);
