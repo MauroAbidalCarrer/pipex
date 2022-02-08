@@ -6,7 +6,7 @@
 /*   By: maabidal <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/02 13:50:11 by maabidal          #+#    #+#             */
-/*   Updated: 2022/02/07 23:03:25 by maabidal         ###   ########.fr       */
+/*   Updated: 2022/02/08 15:46:10 by maabidal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,7 +63,7 @@ void	exe_first(char *cmd_s, char *pathname, char **env, int p_write)
 	manage_fds(p_read_n_open_f, pathname, IN, NULL);
 	setup_cmd(&cmd, cmd_s, env);
 	execve(cmd.path, cmd.av, env);
-	exit_with_error(&cmd, NULL, *cmd.av, 1);
+	exit_with_error(NULL, NULL, *cmd.av, 1);
 }
 
 void	exe_last(char *cmd_s, char *pathname, char **env, int *p_read_n_open_f)
@@ -73,7 +73,7 @@ void	exe_last(char *cmd_s, char *pathname, char **env, int *p_read_n_open_f)
 	setup_cmd(&cmd, cmd_s, env);
 	manage_fds(p_read_n_open_f, pathname, OUT, &cmd);
 	execve(cmd.path, cmd.av, env);
-	exit_with_error(&cmd, NULL, *cmd.av, 1);
+	exit_with_error(NULL, NULL, *cmd.av, 1);
 }
 
 void	exe_pipe(char *cmd_s, char **env, int p_read, int p_write)
@@ -84,5 +84,5 @@ void	exe_pipe(char *cmd_s, char **env, int p_read, int p_write)
 	ft_dup2(p_read, IN, &cmd);
 	ft_dup2(p_write, OUT, &cmd);
 	execve(cmd.path, cmd.av, env);
-	exit_with_error(&cmd, NULL, cmd.path, 1);
+	exit_with_error(NULL, NULL, cmd.path, 1);
 }
