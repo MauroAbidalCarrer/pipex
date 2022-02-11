@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   bonus.c                                            :+:      :+:    :+:   */
+/*   main_bonus.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: maabidal <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/05 18:47:32 by maabidal          #+#    #+#             */
-/*   Updated: 2022/02/07 19:05:13 by maabidal         ###   ########.fr       */
+/*   Updated: 2022/02/11 21:20:18 by maabidal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,7 +72,7 @@ void	exe_cmds_hd(int ac, char **av, char **env, int read_pipe)
 	p_read_n_open_f[1] = APPEND_F;
 	exe_last(av[ac - 2], av[ac - 1], env, p_read_n_open_f);
 }
-
+/*
 void	exe_cmds_no_hd(int ac, char **av, char **env, int *p_fds)
 {
 	int	p_read_n_open_f[2];
@@ -83,6 +83,26 @@ void	exe_cmds_no_hd(int ac, char **av, char **env, int *p_fds)
 		exe_first(av[1], av[0], env, p_fds[1]);
 	}
 	ft_close(p_fds[1]);
+	p_fds[0] = exe_mid_cmds(ac - 4, av + 2, env, p_fds[0]);
+	p_read_n_open_f[0] = p_fds[0];
+	p_read_n_open_f[1] = CREAT_F;
+	exe_last(av[ac - 2], av[ac - 1], env, p_read_n_open_f);
+}
+*/
+
+void	exe_cmds_no_hd(int ac, char **av, char **env, int *p_fds)
+{
+	int	p_read_n_open_f[2];
+int	fd;
+
+fd = ft_open(av[0], O_RDONLY, NULL);
+	if (ft_fork() == 0)
+	{
+		ft_close(p_fds[0]);
+		exe_first(av[1], fd, env, p_fds[1]);
+	}
+	ft_close(p_fds[1]);
+	ft_close(fd);
 	p_fds[0] = exe_mid_cmds(ac - 4, av + 2, env, p_fds[0]);
 	p_read_n_open_f[0] = p_fds[0];
 	p_read_n_open_f[1] = CREAT_F;

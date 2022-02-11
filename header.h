@@ -6,7 +6,7 @@
 /*   By: maabidal <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/02 13:50:20 by maabidal          #+#    #+#             */
-/*   Updated: 2022/02/07 20:43:39 by maabidal         ###   ########.fr       */
+/*   Updated: 2022/02/11 21:18:42 by maabidal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,7 +66,8 @@ char	*get_next_line(int fd);
 
 //process
 void	exit_with_error(t_cmd *cmd, char *c_msg, char *app_msg, int status);
-void	exe_first(char *cmd_s, char *pathname, char **env, int p_write);
+//void	exe_first(char *cmd_s, char *pathname, char **env, int p_write);
+void	exe_first(char *cmd_s, int fd, char **env, int p_write);
 void	exe_last(char *cmd_s, char *file, char **env, int *p_read_n_open_f);
 void	exe_pipe(char *cmd_s, char **env, int p_read, int p_write);
 

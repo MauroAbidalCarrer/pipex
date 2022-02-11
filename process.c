@@ -6,7 +6,7 @@
 /*   By: maabidal <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/02 13:50:11 by maabidal          #+#    #+#             */
-/*   Updated: 2022/02/08 15:46:10 by maabidal         ###   ########.fr       */
+/*   Updated: 2022/02/11 21:22:32 by maabidal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,7 @@ void	manage_fds(int *yes, char *pathname, int file_stream, t_cmd *cmd)
 	fd = ft_open(pathname, yes[1], cmd);
 	ft_dup2(fd, file_stream, cmd);
 }
-
+/*
 void	exe_first(char *cmd_s, char *pathname, char **env, int p_write)
 {
 	t_cmd	cmd;
@@ -65,13 +65,38 @@ void	exe_first(char *cmd_s, char *pathname, char **env, int p_write)
 	execve(cmd.path, cmd.av, env);
 	exit_with_error(NULL, NULL, *cmd.av, 1);
 }
+*/
+void	exe_first(char *cmd_s, int fd, char **env, int p_write)
+{
+	t_cmd cmd;
+	
+	ft_dup2(p_write, OUT, NULL);
+	ft_dup2(fd, IN, NULL);
+	setup_cmd(&cmd, cmd_s, env);
+	execve(cmd.path, cmd.av, env);
+	exit_with_error(NULL, NULL, *cmd.av, 1);
+}
 
+/*
 void	exe_last(char *cmd_s, char *pathname, char **env, int *p_read_n_open_f)
 {
 	t_cmd	cmd;
 
 	setup_cmd(&cmd, cmd_s, env);
 	manage_fds(p_read_n_open_f, pathname, OUT, &cmd);
+	execve(cmd.path, cmd.av, env);
+	exit_with_error(NULL, NULL, *cmd.av, 1);
+}
+*/
+void	exe_last(char *cmd_s, char *pathname, char **env, int *p_read_n_open_f)
+{
+	t_cmd	cmd;
+int	fd;
+
+	setup_cmd(&cmd, cmd_s, env);
+	fd = ft_open(pathname, p_read_n_open_f[1], &cmd);
+	ft_dup2(fd, OUT, &cmd);
+	ft_dup2(p_read_n_open_f[0], IN, &cmd);
 	execve(cmd.path, cmd.av, env);
 	exit_with_error(NULL, NULL, *cmd.av, 1);
 }
