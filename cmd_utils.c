@@ -6,7 +6,7 @@
 /*   By: maabidal <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/04 14:33:52 by maabidal          #+#    #+#             */
-/*   Updated: 2022/02/07 23:03:01 by maabidal         ###   ########.fr       */
+/*   Updated: 2022/02/12 23:20:50 by maabidal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,8 +18,8 @@ int	has_access(char *cmd_path, t_cmd *cmd, int free_path_on_fail)
 	{
 		if (access(cmd_path, X_OK) == 0)
 			return (1);
-		if (free_path_on_fail)
-			free(cmd_path);
+		if (!free_path_on_fail)
+			cmd->path = NULL;
 		exit_with_error(cmd, NULL, *cmd->av, 126);
 	}
 	return (0);
